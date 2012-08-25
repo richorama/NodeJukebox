@@ -4,6 +4,8 @@
   "private": "true",
   "dependencies": {
     "express": "*",
-    "glob": "*"
+    "tracklist": "*",
+    "zippy": "*",
+    "hashish": "*"
   }
 }
