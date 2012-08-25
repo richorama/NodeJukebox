@@ -5,7 +5,7 @@ var express = require('express')
 var app = express();
 var filesInfo = new Array();
 
-searchFiles('/Users/danhigham/Music');
+searchFiles('.');
 
 
 app.get('/', function(req, res){
@@ -23,9 +23,10 @@ function searchFiles(cwd) {
       tracklist.list(cwd + '/' + filepath, function (err, result) {
         
         if(result) {
-          console.log('done.')
-          filesInfo.push(result);
-        }
+
+			console.log(result);
+			filesInfo.push(result);
+	    }
 
       });
 
