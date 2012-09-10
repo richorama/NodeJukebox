@@ -1,0 +1,250 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>Jukebox</title>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="http://documentcloud.github.com/underscore/underscore.js"></script>
+		<script type="text/javascript" src="http://documentcloud.github.com/backbone/backbone.js"></script>
+        <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+        <link href='http://fonts.googleapis.com/css?family=Playball' rel='stylesheet' type='text/css'/>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'/>
+        <style type="text/css">
+body, input
+{
+    background-color:#333;
+    color:Silver;
+    font-family:'Open Sans', sans-serif;
+    font-weight:300;
+    font-size : 25px;
+}
+input
+{
+    border: 1px solid #40C4FF;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+a
+{
+    color:#40C4FF;    
+}
+#body
+{
+    width:600px;    
+    margin-left:30px;
+}
+.title
+{
+    width:600px;  
+    font-size:80px;    
+    margin-left:30px;
+    font-family: 'Playball', cursive;
+    text-decoration:none;
+}
+.subtitle
+{
+    margin-top:-30px;    
+    margin-left:60px;
+}
+h2
+{
+    font-size:40px;    
+    margin-top:0px;
+    margin-bottom:0px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight:300;
+}
+a
+{
+    text-decoration:none;    
+}
+a:hover
+{
+    text-decoration:underline;
+}
+.current
+{
+    margin:30px;    
+}
+        </style>
+    </head> 
+	<body>
+        <div class="title"><a href="#">Jukebox</a></div>
+        <div class="subtitle">web music server</div>
+        <div class="current" id="current"></div>
+        <div id="body"></div>
+
+        <script language="javascript" type="text/javascript">
+
+            function poll() {
+
+                controllers.getCurrentSong();
+                setTimeout("poll();", 10000);
+            }
+
+            function get(url, cb){
+                console.log("get " + url);
+                $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    success: function (results) {
+                        cb(results);
+                    },
+                    error: function () {
+                        console.error('Fail');
+                    }
+                });
+            }
+
+
+            var controllers = new function () {
+                this.defaultAction = function () {
+                    showView("#default", {});
+                }
+                this.getCurrentSong = function()
+                {
+                    get('/songs/current/',function (results) {
+                        $("#current").html($("#nowplaying").tmpl({ items: results }));
+                    });
+                }
+                this.list = function (filter) {
+                    get('/' + filter + '/', function (results) {
+                        showView("#list", { items: results, filter: filter, title: filter + "s" });
+                    });
+
+                }
+                this.songs = function (filter, value) {
+                    get('/' + filter + '/' + value + "/Tracks/", function (results) {
+                        showView("#songs", { items: results, filter: filter, title: value });
+                    });
+                }
+                this.search = function (value) {
+                    get('/songs/search/' + value, function (results) {
+                        showView("#searchResults", { items: results, filter: "Search", title: "Search results for " + value, value: value });
+                    });
+                }
+                this.song = function (id) {
+                    get('/song/' + id, function (result) {
+                        showView("#song", { song: result });
+                    });
+                }
+                this.play = function (id) {
+                    get('/push/' + id, function (result) {
+                        $("#" + id).text("Queued");
+                    });
+                }
+
+            }
+
+            function showView(tmplName, model) {
+                $("#body").html($(tmplName).tmpl(model));
+            };
+
+            var AppRouter = Backbone.Router.extend({
+                routes: {
+					"List/:filter": "list",
+					"Songs/:filter/:value": "songs",
+					"Songs/:filter": "songs",
+					"Song/:id": "song",
+                    "Search/:value": "search",
+                    "*actions": "defaultRoute"
+                },
+                defaultRoute: function (actions) {
+                    controllers.defaultAction();
+                },
+				songs: function(filter,value){
+					controllers.songs(filter, value);
+				},
+                song: function (id) {
+                    controllers.song(id);
+                },
+				list: function(filter){
+					controllers.list(filter);
+				},
+                search: function(value){
+                    controllers.search(value);
+                }
+
+            });
+            // Initiate the router
+            var router = new AppRouter;
+
+            // execute the default action
+            $(document).ready(function() {
+                Backbone.history.start();
+                controllers.defaultAction();
+                poll();
+            });
+			
+		</script>
+        <script id="default" type="text/x-jquery-tmpl">
+     
+            <input id="Search" onkeypress="if ((event.keyCode || event.which) == 13) {window.location = '#/Search/' + $('#Search').val();}"/> <a href="javascript:void();" onclick="window.location = '#/Search/' + $('#Search').val()">Search</a><br/>
+			<br/>
+            <h2>What's playing?</h2>
+            <div><a href="#/Songs/Current">Now playing</a></div>
+			<div><a href="#/Songs/Queue">Queued songs</a></div>
+			<div><a href="#/Songs/Popular">Most played songs</a></div>
+            <h2>Browse the catalogue</h2>
+			<div><a href="#/List/Genre">Browse by genre</a></div>
+			<div><a href="#/List/Artist">Browse by artist</a></div>
+			<div><a href="#/List/Album">Browse by album</div>
+        
+        </script>
+		
+		<script id="list" type="text/x-jquery-tmpl">
+			<h2>${title}</h2>
+			<ul>
+				{{each items}}
+				<li>
+					<a href="#/Songs/${filter}/${$value}">${$value}</a>
+				</li>
+				{{/each}}
+			</ul>
+        </script>
+
+        <script id="songs" type="text/x-jquery-tmpl">
+			<h2>${title}</h2>
+			<ul>
+				{{each items}}
+				<li>
+					<a href="#/Song/${$value.Id}">${$value.title}</a> by <a href="#/Songs/Artist/${$value.artist}">${$value.artist}</a>
+				    <span id="${$value.Id}"><a href="javascript:void();" onclick="controllers.play('${$value.Id}')">&#9654;</a></span>
+                </li>
+				{{/each}}
+			</ul>
+        </script>
+
+       <script id="nowplaying" type="text/x-jquery-tmpl">
+			{{each items}}
+				Playing <a href="#/Song/${$value.Id}">${$value.Title}</a> by <a href="#/Songs/Artist/${$value.artist}">${$value.artist}</a>
+			{{/each}}
+        </script>
+
+        
+        <script id="searchResults" type="text/x-jquery-tmpl">
+			<h2>${title}</h2>
+            <input value="${value}" id="Search" onkeypress="if ((event.keyCode || event.which) == 13) {window.location = '#/Search/' + $('#Search').val();}"/> <a href="javascript:void();" onclick="window.location = '#/Search/' + $('#Search').val()">Search</a><br/>
+			<ul>
+				{{each items}}
+				<li>
+					<a href="#/Song/${$value.Id}">${$value.title}</a> by <a href="#/Songs/Artist/${$value.artist}">${$value.artist}</a>
+				    <span id="${$value.Id}"><a href="javascript:void();" onclick="controllers.play('${$value.Id}')">&#9654;</a></span>
+				</li>
+				{{/each}}
+			</ul>
+        </script>
+
+		 <script id="song" type="text/x-jquery-tmpl">
+            <h2>${song.title} by <a href="#/Songs/Artist/${song.artist}">${song.artist}</a></h2>
+			<br/>
+            <a href="#/Songs/Album/${song.Album}">${song.Album}</a> Album<br/>
+            <a href="#/Songs/Genre/${song.Genre}">${song.Genre}</a> Genre<br/>
+            ${song.PlayCount} Plays<br/>
+            <br/>
+			<span id="${song.Id}"><a href="javascript:void();" onclick="controllers.play('${song.Id}')">&#9654; Play</a></span>&nbsp;&nbsp;&nbsp;
+            <a href="/download.mp3?Id=${song.Id}" type="audio/mpeg">&#9660; Download</a><br/><br/>
+        </script>
+
+	</body>
+</html>

@@ -8,15 +8,15 @@ var artists = {};
 
 searchFiles('.');
 
-app.get('/artists/', function(req,res){
+app.get('/Artist/', function(req,res){
 	var results = [];
-	for (prop in artists){
+	for (var prop in artists){
 		results.push(prop);
 	}
 	res.json(results);
 });
 
-app.get('/artist/:string/tracks', function(req,res){
+app.get('/Artist/:string/Tracks', function(req,res){
 	var results = [];
 	var searchString = (req.params.string ? req.params.string : "").toLowerCase();
 	filesInfo.forEach(function(file){
@@ -46,12 +46,15 @@ app.post('/play/:id', function(req,res){
 
 	// TODO, play this file
 
-	res.json({ok:true}});
+	res.json({ok:true});
 });
 
+app.get('/Songs/Current/', function(req, res){
+	res.json({});
+});
 
 app.get('/', function(req, res){
-	res.send('hello world');
+	res.sendfile('default.htm');
 });
 
 function searchFiles(cwd) {
@@ -68,6 +71,11 @@ function searchFiles(cwd) {
 
 			console.log(result);
 			filesInfo.push(result);
+			if (artists[result.artist]){
+				artists[result.artist] += 1;
+			} else {
+				artists[result.artist] = 1;
+			}
 	    }
 
       });
