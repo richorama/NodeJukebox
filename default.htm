@@ -96,6 +96,20 @@ a:hover
                 });
             }
 
+            function post(url, cb){
+                console.log("post " + url);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    dataType: 'json',
+                    success: function (results) {
+                        cb(results);
+                    },
+                    error: function () {
+                        console.error('Fail');
+                    }
+                });
+            }
 
             var controllers = new function () {
                 this.defaultAction = function () {
@@ -129,7 +143,7 @@ a:hover
                     });
                 }
                 this.play = function (id) {
-                    get('/push/' + id, function (result) {
+                    post('/play/' + id, function (result) {
                         $("#" + id).text("Queued");
                     });
                 }

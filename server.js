@@ -7,6 +7,7 @@ var filesInfo = [];
 var artists = {};
 var genres = {};
 var albums = {};
+var playQueue = [];
 
 searchFiles('.');
 
@@ -53,13 +54,19 @@ app.post('/play/:id', function(req,res){
 	var results = [];
 	var file = filesInfo[req.params.id];
 
-	// TODO, play this file
+	if (file) {
+		playQueue.push(file);
+	}
 
 	res.json({ok:true});
 });
 
 app.get('/Songs/Current/', function(req, res){
 	res.json({});
+});
+
+app.get('/Queue/*/Tracks/', function(req, res){
+	res.json(playQueue);
 });
 
 app.get('/', function(req, res){
@@ -101,7 +108,7 @@ function searchFiles(cwd) {
 
   options = {'cwd': cwd}
   glob("**/*.{mp3,mp4,m4a}", options, function (er, files) {
-
+  var i = 0;
     files.forEach(function(filepath){
       console.log(cwd + '/' + filepath)      
 
@@ -109,6 +116,7 @@ function searchFiles(cwd) {
         
         if(result) {
 			console.log(result);
+			result.Id = i++;
 			filesInfo.push(result);
 			index(result.genre, genres);
 			index(result.artist, artists);
