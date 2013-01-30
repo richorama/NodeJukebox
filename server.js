@@ -1,6 +1,8 @@
-var express = require('express')
-  , glob = require('glob')
-  , tracklist = require('tracklist');
+var express = require('express');
+var glob = require('glob');
+var tracklist = require('tracklist');
+var sys = require('util')
+var childProcess = require('child_process');
 
 var app = express();
 var filesInfo = [];
@@ -8,6 +10,7 @@ var artists = {};
 var genres = {};
 var albums = {};
 var playQueue = [];
+var currentTrack = undefined;
 
 searchFiles('.');
 
@@ -56,6 +59,7 @@ app.post('/play/:id', function(req,res){
 
 	if (file) {
 		playQueue.push(file);
+		play();
 	}
 
 	res.json({ok:true});
@@ -117,6 +121,7 @@ function searchFiles(cwd) {
         if(result) {
 			console.log(result);
 			result.Id = i++;
+			result.Path = cwd + '/' + filepath;
 			filesInfo.push(result);
 			index(result.genre, genres);
 			index(result.artist, artists);
@@ -126,6 +131,23 @@ function searchFiles(cwd) {
     });
   });
 }
+
+function done(error, stdout, stderr) 
+{ 
+	console.log("done");
+	console.log(stdout);
+	currentTrack = undefined;
+	if (playQueue.length > 0){
+		setTimeout(function(){ play(); }, 0);
+	}
+}
+
+function play(){
+	currentTrack = playQueue.pop();	
+	childProcess.exec("mpg123 " + currentTrack.Path, done);
+}
+
+//exec("PING 1.1.1.1 -n 1 -w 6000 >NUL", done);
 
 var port = process.env.port || 3000;
 app.listen(port);
