@@ -58,6 +58,7 @@ app.post('/play/:id', function(req,res){
 	var file = filesInfo[req.params.id];
 
 	if (file) {
+		console.log("queued " + file.Path);
 		playQueue.push(file);
 		play();
 	}
@@ -119,7 +120,7 @@ function searchFiles(cwd) {
       tracklist.list(cwd + '/' + filepath, function (err, result) {
         
         if(result) {
-			console.log(result);
+			//console.log(result);
 			result.Id = i++;
 			result.Path = cwd + '/' + filepath;
 			filesInfo.push(result);
@@ -134,8 +135,6 @@ function searchFiles(cwd) {
 
 function done(error, stdout, stderr) 
 { 
-	console.log("done");
-	console.log(stdout);
 	currentTrack = undefined;
 	if (playQueue.length > 0){
 		setTimeout(function(){ play(); }, 0);
@@ -150,8 +149,6 @@ function play(){
 	console.log("playing " + currentTrack.Path);
 	childProcess.exec('mpg123 "' + currentTrack.Path + '"', done);
 }
-
-//exec("PING 1.1.1.1 -n 1 -w 6000 >NUL", done);
 
 var port = process.env.port || 3000;
 app.listen(port);
