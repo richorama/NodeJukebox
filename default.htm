@@ -78,9 +78,7 @@ a:hover
         <script language="javascript" type="text/javascript">
 
             function poll() {
-
-                controllers.getCurrentSong();
-                setTimeout("poll();", 10000);
+                setInterval(function(){controllers.getCurrentSong()}, 5000);
             }
 
             function get(url, cb){
