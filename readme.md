@@ -2,7 +2,9 @@
 
 ![Jukebox Logo](http://coderead.files.wordpress.com/2013/02/logo.png?w=320)
 
-A Node.js based jukebox for playing music on Linux or the Raspberry Pi.
+A Node.js jukebox for playing music on Linux (or the Raspberry Pi).
+
+A .NET version of this project is available [here](https://github.com/richorama/Jukebox).
 
 ## How it works
 
@@ -21,6 +23,8 @@ sudo add-apt-repository ppa:chris-lea/node.js
 sudo apt-get update
 sudo apt-get install nodejs npm
 ```
+For more installation instructions, see here: https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+
 
 Installing the Jukebox
 ```
@@ -35,7 +39,7 @@ Starting the Jukebox
 node server
 ```
 
-The Jukebox will be started on port 3000 by default.
+The Jukebox will be started on port 3000 by default: [http://localhost:3000](http://localhost:3000)
 
 
 
