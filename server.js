@@ -12,8 +12,6 @@ var albums = {};
 var playQueue = [];
 var currentTrack = undefined;
 
-searchFiles('.');
-
 app.get('/Artist/', function(req,res){
 	res.json(enumerate(artists));
 });
@@ -109,18 +107,21 @@ function index(value, dictionary){
 	}
 }
 
+searchFiles(process.env.HOME);
+
 function searchFiles(cwd) {
-
-  options = {'cwd': cwd}
-  glob("**/*.{mp3,mp4,m4a}", options, function (er, files) {
-  var i = 0;
+  var options = {cwd: cwd, nonull: false, nocase: true, root: "."};
+  glob("**/*.mp3", options, function (error, files) {
+  	if (error) {
+  		console.error(error);
+  	}
+  	console.log(files.length + " tracks found");
+  	var i = 0;
     files.forEach(function(filepath){
-      console.log(cwd + '/' + filepath)      
 
-      tracklist.list(cwd + '/' + filepath, function (err, result) {
-        
+      	tracklist.list(cwd + '/' + filepath, function (err, result) {
+
         if(result) {
-			//console.log(result);
 			result.Id = i++;
 			result.Path = cwd + '/' + filepath;
 			filesInfo.push(result);
