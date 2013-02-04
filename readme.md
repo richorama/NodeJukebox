@@ -47,7 +47,7 @@ Starting the Jukebox
 node server
 ```
 
-The Jukebox will be started on port 3000 by default: [http://localhost:3000](http://localhost:3000)
+The Jukebox will be started on port 1337 by default: [http://localhost:1337](http://localhost:1337)
 
 
 
