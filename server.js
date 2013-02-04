@@ -107,7 +107,7 @@ function index(value, dictionary){
 	}
 }
 
-searchFiles(process.env.HOME);
+searchFiles(process.env.HOME || ".");
 
 function searchFiles(cwd) {
   var options = {cwd: cwd, nonull: false, nocase: true, root: "."};
@@ -119,6 +119,7 @@ function searchFiles(cwd) {
   	var i = 0;
     files.forEach(function(filepath){
 
+    	console.log(cwd + '/' + filepath)
       	tracklist.list(cwd + '/' + filepath, function (err, result) {
 
         if(result) {
@@ -129,6 +130,7 @@ function searchFiles(cwd) {
 			index(result.artist, artists);
 			index(result.album, albums);
 	    }
+
       });
     });
   });
@@ -151,6 +153,6 @@ function play(){
 	childProcess.exec('mpg123 "' + currentTrack.Path + '"', done);
 }
 
-var port = process.env.port || 3000;
+var port = process.env.port || 1337;
 app.listen(port);
 console.log("server started on port " + port);
