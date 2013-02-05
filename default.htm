@@ -117,7 +117,7 @@ a:hover
                 }
                 this.getCurrentSong = function()
                 {
-                    get('/songs/current/',function (results) {
+                    get('/current/',function (results) {
                         $("#current").html($("#nowplaying").tmpl({ items: results }));
                     });
                 }
@@ -197,8 +197,8 @@ a:hover
 			<br/>
             <h2>What's playing?</h2>
             <div><a href="#/Songs/Current">Now playing</a></div>
-			<div><a href="#/Songs/Queue">Queued songs</a></div>
-			<div><a href="#/Songs/Popular">Most played songs</a></div>
+			<div><a href="#/Songs/Queue/Queued songs">Queued songs</a></div>
+			<div><a href="#/Songs/Popular/Most played songs">Most played songs</a></div>
             <h2>Browse the catalogue</h2>
 			<div><a href="#/List/Genre">Browse by genre</a></div>
 			<div><a href="#/List/Artist">Browse by artist</a></div>
@@ -231,7 +231,7 @@ a:hover
 
        <script id="nowplaying" type="text/x-jquery-tmpl">
 			{{each items}}
-				Playing <a href="#/Song/${$value.Id}">${$value.Title}</a> by <a href="#/Songs/Artist/${$value.artist}">${$value.artist}</a>
+				Playing <a href="#/Song/${$value.Id}">${$value.title}</a> by <a href="#/Songs/Artist/${$value.artist}">${$value.artist}</a>
 			{{/each}}
         </script>
 
@@ -252,12 +252,12 @@ a:hover
 		 <script id="song" type="text/x-jquery-tmpl">
             <h2>${song.title} by <a href="#/Songs/Artist/${song.artist}">${song.artist}</a></h2>
 			<br/>
-            <a href="#/Songs/Album/${song.Album}">${song.Album}</a> Album<br/>
-            <a href="#/Songs/Genre/${song.Genre}">${song.Genre}</a> Genre<br/>
-            ${song.PlayCount} Plays<br/>
+            <a href="#/Songs/Album/${song.album}">${song.album}</a> Album<br/>
+            <a href="#/Songs/Genre/${song.genre}">${song.genre}</a> Genre<br/>
+            ${song.plays} Plays<br/>
             <br/>
 			<span id="${song.Id}"><a href="javascript:void();" onclick="controllers.play('${song.Id}')">&#9654; Play</a></span>&nbsp;&nbsp;&nbsp;
-            <a href="/download.mp3?Id=${song.Id}" type="audio/mpeg">&#9660; Download</a><br/><br/>
+            <a href="/Download/${song.Id}/download.mp3" type="audio/mpeg">&#9660; Download</a><br/><br/>
         </script>
 
 	</body>

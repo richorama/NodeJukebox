@@ -64,8 +64,24 @@ app.post('/play/:id', function(req,res){
 	res.json({ok:true});
 });
 
-app.get('/Songs/Current/', function(req, res){
-	res.json({});
+app.get('/Current/*', function(req, res){
+	res.json(currentTrack);
+});
+
+app.get('/Popular/*', function(req, res){
+	var results = [];
+	filesInfo.forEach(function(track){
+		if (track.plays > 0){
+			results.push(track);
+		}
+	});
+	results.sort(function(a,b){b.plays - a.plays});
+	res.json(results);
+});
+
+
+app.get('/Song/:id', function(req, res){
+	res.json(filesInfo[req.params.id]);
 });
 
 app.get('/Queue/*/Tracks/', function(req, res){
@@ -74,6 +90,10 @@ app.get('/Queue/*/Tracks/', function(req, res){
 
 app.get('/', function(req, res){
 	res.sendfile('default.htm');
+});
+
+app.get('/Download/:id/download.mp3', function(req, res){
+	res.sendfile(filesInfo[req.params.id].Path);
 });
 
 function enumerate(dictionary){
@@ -107,7 +127,15 @@ function index(value, dictionary){
 	}
 }
 
-searchFiles(process.env.HOME || ".");
+if (process.argv.length > 2){
+	for(var i = 2; i < process.argv.length; i++){
+		searchFiles(process.argv[i]);		
+	}
+} else {
+	searchFiles(process.env.HOME || ".");		
+}
+
+
 
 function searchFiles(cwd) {
   var options = {cwd: cwd, nonull: false, nocase: true, root: "."};
@@ -116,14 +144,14 @@ function searchFiles(cwd) {
   		console.error(error);
   	}
   	console.log(files.length + " tracks found");
-  	var i = 0;
     files.forEach(function(filepath){
 
-    	console.log(cwd + '/' + filepath)
+    	console.log(filepath)
       	tracklist.list(cwd + '/' + filepath, function (err, result) {
 
         if(result) {
-			result.Id = i++;
+        	result.plays = 0;
+			result.Id = filesInfo.length;
 			result.Path = cwd + '/' + filepath;
 			filesInfo.push(result);
 			index(result.genre, genres);
@@ -149,6 +177,7 @@ function play(){
 		return;
 	}
 	currentTrack = playQueue.pop();	
+	currentTrack.plays += 1;
 	console.log("playing " + currentTrack.Path);
 	childProcess.exec('mpg123 "' + currentTrack.Path + '"', done);
 }
