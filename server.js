@@ -65,7 +65,11 @@ app.post('/play/:id', function(req,res){
 });
 
 app.get('/Current/*', function(req, res){
-	res.json(currentTrack);
+	var result = [];
+	if (currentTrack){
+		result.push(currentTrack);
+	}
+	res.json(result);
 });
 
 app.get('/Popular/*', function(req, res){
