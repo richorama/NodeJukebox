@@ -6,7 +6,9 @@ A .NET version of this project is available [here](https://github.com/richorama/
 
 ## How it works
 
-When the script starts it scans the file system for all MP3 files.
+When the application starts it scans the file system for all MP3 files.
+
+The application then starts a web server, which users on the same network can connect to using their smartphones or web browsers.
 
 Users can browse the music collection and queue tracks up for playing.
 
